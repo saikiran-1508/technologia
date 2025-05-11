@@ -15,7 +15,8 @@ import {
 } from 'react-native-responsive-screen';
 import { BellIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
 import axios from 'axios';
-import Categories from '../components/categories'; // Make sure this is fixed
+import Categories from '../components/categories'; // Make sure the file is correct
+import Recipies from '../components/recipies'; // Capitalized and fixed usage
 
 export default function HomeScreen() {
   const [activeCategory, setActiveCategory] = useState('Beef');
@@ -86,18 +87,23 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Categories Section */}
+        {/* Categories and Recipies */}
         <View style={styles.categoriesContainer}>
           {loading ? (
             <ActivityIndicator size="large" color="#fbbf24" />
           ) : error ? (
             <Text style={styles.errorText}>{error}</Text>
           ) : (
-            <Categories
-              categories={categories}
-              activeCategory={activeCategory}
-              setActiveCategory={setActiveCategory}
-            />
+            <>
+              <Categories
+                categories={categories}
+                activeCategory={activeCategory}
+                setActiveCategory={setActiveCategory}
+              />
+              <View>
+                <Recipies />
+              </View>
+            </>
           )}
         </View>
       </ScrollView>
