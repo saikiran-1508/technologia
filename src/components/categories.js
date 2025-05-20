@@ -1,11 +1,17 @@
-import { View, Text, ScrollView, TouchableWithoutFeedback, Image, Animated } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Image,
+  Animated,
+} from 'react-native';
 import React, { useRef } from 'react';
 
-export default function Categories({ categories = [], activeCategory, setActiveCategory }) {
+export default function Categories({ categories = [], activeCategory, handleChangeCategory }) {
   const scaleAnimRefs = useRef(categories.map(() => new Animated.Value(1))).current;
 
   const handlePress = (index, categoryName) => {
-    // Animate bounce
     Animated.sequence([
       Animated.timing(scaleAnimRefs[index], {
         toValue: 0.9,
@@ -19,7 +25,7 @@ export default function Categories({ categories = [], activeCategory, setActiveC
       }),
     ]).start();
 
-    setActiveCategory(categoryName);
+    handleChangeCategory(categoryName); // ✅ Correct function call
   };
 
   return (
