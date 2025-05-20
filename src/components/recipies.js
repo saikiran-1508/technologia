@@ -5,24 +5,27 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import MasonryList from '@react-native-seoul/masonry-list';
-import { mealData } from '../constants';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-export default function Recipes() {
+export default function Recipes({ meals }) {
   return (
     <View style={{ marginHorizontal: wp(4), gap: hp(2) }}>
       <Text style={{ fontSize: hp(3) }} className="font-semibold text-neutral-600">
         Recipes
       </Text>
 
-      <MasonryList
-        data={mealData}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item, i }) => <RecipeCard item={item} index={i} />}
-        onEndReachedThreshold={0.1}
-      />
+      {meals.length === 0 ? (
+        <Text>No recipes to display.</Text>
+      ) : (
+        <MasonryList
+          data={meals}
+          keyExtractor={(item) => item.idMeal}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => <RecipeCard item={item} index={index} />}
+          // Optional: Add pagination handlers later
+        />
+      )}
     </View>
   );
 }
@@ -43,7 +46,8 @@ const RecipeCard = ({ item, index }) => {
         className="flex justify-center mb-4 space-y-1"
       >
         <Image
-          source={{ uri: item.image }}
+          source={{ uri: item.strMealThumb }}
+          resizeMode="cover"
           style={{
             width: '100%',
             height: index % 3 === 0 ? hp(25) : hp(35),
@@ -56,7 +60,7 @@ const RecipeCard = ({ item, index }) => {
           style={{ fontSize: hp(1.5) }}
           className="font-semibold ml-2 text-neutral-600"
         >
-          {item.name.length > 20 ? item.name.slice(0, 20) + '...' : item.name}
+          {item.strMeal.length > 20 ? item.strMeal.slice(0, 20) + '...' : item.strMeal}
         </Text>
       </Pressable>
     </Animated.View>
