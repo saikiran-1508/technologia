@@ -21,7 +21,7 @@ import Recipies from '../components/recipies';
 export default function HomeScreen() {
   const [activeCategory, setActiveCategory] = useState('Beef');
   const [categories, setCategories] = useState([]);
-  const [recipes, setRecipes] = useState([]);
+  const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -33,16 +33,18 @@ export default function HomeScreen() {
     getRecipes(activeCategory);
   }, [activeCategory]);
 
+  const handleChangeCategory = (category) => {
+    setActiveCategory(category);
+  };
+
   const getCategories = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const response = await axios.get(
         'https://www.themealdb.com/api/json/v1/1/categories.php'
       );
-      if (
-        response &&
-        response.data &&
-        Array.isArray(response.data.categories)
-      ) {
+      if (response?.data?.categories?.length > 0) {
         setCategories(response.data.categories);
       } else {
         setError('No categories found');
@@ -56,19 +58,23 @@ export default function HomeScreen() {
   };
 
   const getRecipes = async (category = 'Beef') => {
+    setLoading(true);
+    setError(null);
     try {
       const response = await axios.get(
         `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`
       );
-      if (response && response.data && Array.isArray(response.data.meals)) {
-        setRecipes(response.data.meals);
+      if (response?.data?.meals?.length > 0) {
+        setMeals(response.data.meals);
       } else {
-        setRecipes([]);
+        setMeals([]);
         setError('No recipes found');
       }
     } catch (err) {
       console.log('API error: ', err.message);
       setError('Failed to fetch recipes');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,9 +126,9 @@ export default function HomeScreen() {
               <Categories
                 categories={categories}
                 activeCategory={activeCategory}
-                setActiveCategory={setActiveCategory}
+                handleChangeCategory={handleChangeCategory}
               />
-              <Recipies recipes={recipes} />
+              <Recipies meals={meals} />
             </>
           )}
         </View>
