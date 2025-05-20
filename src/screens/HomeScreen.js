@@ -15,18 +15,23 @@ import {
 } from 'react-native-responsive-screen';
 import { BellIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
 import axios from 'axios';
-import Categories from '../components/categories'; // Make sure the file is correct
-import Recipies from '../components/recipies'; // Capitalized and fixed usage
+import Categories from '../components/categories';
+import Recipies from '../components/recipies';
 
 export default function HomeScreen() {
   const [activeCategory, setActiveCategory] = useState('Beef');
   const [categories, setCategories] = useState([]);
+  const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     getCategories();
   }, []);
+
+  useEffect(() => {
+    getRecipes(activeCategory);
+  }, [activeCategory]);
 
   const getCategories = async () => {
     try {
@@ -50,6 +55,23 @@ export default function HomeScreen() {
     }
   };
 
+  const getRecipes = async (category = 'Beef') => {
+    try {
+      const response = await axios.get(
+        `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`
+      );
+      if (response && response.data && Array.isArray(response.data.meals)) {
+        setRecipes(response.data.meals);
+      } else {
+        setRecipes([]);
+        setError('No recipes found');
+      }
+    } catch (err) {
+      console.log('API error: ', err.message);
+      setError('Failed to fetch recipes');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -57,7 +79,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* avatar and bell icon */}
+        {/* Avatar and Bell icon */}
         <View style={styles.header}>
           <Image
             source={require('../../assets/images/avatar.png')}
@@ -66,7 +88,7 @@ export default function HomeScreen() {
           <BellIcon size={hp(4)} color="gray" />
         </View>
 
-        {/* greetings and punchline */}
+        {/* Greetings */}
         <View style={styles.greetingsContainer}>
           <Text style={styles.subText}>Hello, Noman!</Text>
           <Text style={styles.mainText}>Make your own food,</Text>
@@ -75,7 +97,7 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        {/* search bar */}
+        {/* Search bar */}
         <View style={styles.searchBar}>
           <TextInput
             placeholder="Search any recipe"
@@ -87,7 +109,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Categories and Recipies */}
+        {/* Categories and Recipes */}
         <View style={styles.categoriesContainer}>
           {loading ? (
             <ActivityIndicator size="large" color="#fbbf24" />
@@ -100,9 +122,7 @@ export default function HomeScreen() {
                 activeCategory={activeCategory}
                 setActiveCategory={setActiveCategory}
               />
-              <View>
-                <Recipies />
-              </View>
+              <Recipies recipes={recipes} />
             </>
           )}
         </View>
