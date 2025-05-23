@@ -1,31 +1,32 @@
+// components/Categories.js
 import {
   View,
   Text,
   ScrollView,
   TouchableWithoutFeedback,
-  Image,
-  Animated,
+  Animated as RNAnimated,
 } from 'react-native';
 import React, { useRef } from 'react';
+import { CachedImage } from '../helpers/image';
 
 export default function Categories({ categories = [], activeCategory, handleChangeCategory }) {
-  const scaleAnimRefs = useRef(categories.map(() => new Animated.Value(1))).current;
+  const scaleAnimRefs = useRef(categories.map(() => new RNAnimated.Value(1))).current;
 
   const handlePress = (index, categoryName) => {
-    Animated.sequence([
-      Animated.timing(scaleAnimRefs[index], {
+    RNAnimated.sequence([
+      RNAnimated.timing(scaleAnimRefs[index], {
         toValue: 0.9,
         duration: 100,
         useNativeDriver: true,
       }),
-      Animated.spring(scaleAnimRefs[index], {
+      RNAnimated.spring(scaleAnimRefs[index], {
         toValue: 1,
         friction: 3,
         useNativeDriver: true,
       }),
     ]).start();
 
-    handleChangeCategory(categoryName); // ✅ Correct function call
+    handleChangeCategory(categoryName);
   };
 
   return (
@@ -42,7 +43,7 @@ export default function Categories({ categories = [], activeCategory, handleChan
             key={index}
             onPress={() => handlePress(index, category.strCategory)}
           >
-            <Animated.View
+            <RNAnimated.View
               style={{
                 transform: [{ scale: scaleAnimRefs[index] }],
                 alignItems: 'center',
@@ -52,13 +53,15 @@ export default function Categories({ categories = [], activeCategory, handleChan
                 backgroundColor: isActive ? '#fbbf24' : 'transparent',
               }}
             >
-              <Image
-                source={{ uri: category.strCategoryThumb }}
+              <CachedImage
+                uri={category.strCategoryThumb}
+                resizeMode="cover"
                 style={{
                   width: 60,
                   height: 60,
                   borderRadius: 30,
                   marginBottom: 4,
+                  backgroundColor: '#e5e7eb',
                 }}
               />
               <Text
@@ -69,7 +72,7 @@ export default function Categories({ categories = [], activeCategory, handleChan
               >
                 {category.strCategory}
               </Text>
-            </Animated.View>
+            </RNAnimated.View>
           </TouchableWithoutFeedback>
         );
       })}
