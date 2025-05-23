@@ -1,4 +1,5 @@
-import { View, Text, Image, Pressable } from 'react-native';
+// components/Recipes.js
+import { View, Text, Pressable } from 'react-native';
 import React from 'react';
 import {
   widthPercentageToDP as wp,
@@ -24,7 +25,6 @@ export default function Recipes({ meals }) {
           numColumns={2}
           showsVerticalScrollIndicator={false}
           renderItem={({ item, index }) => <RecipeCard item={item} index={index} />}
-          // Optional: Add pagination handlers later
         />
       )}
     </View>
@@ -33,6 +33,8 @@ export default function Recipes({ meals }) {
 
 const RecipeCard = ({ item, index }) => {
   const isEven = index % 2 === 0;
+
+  if (!item?.strMeal || !item?.strMealThumb) return null;
 
   return (
     <Animated.View
@@ -46,24 +48,14 @@ const RecipeCard = ({ item, index }) => {
         }}
         className="flex justify-center mb-4 space-y-1"
       >
-        {/* <Image
-          source={{ uri: item.strMealThumb }}
-          resizeMode="cover"
-          style={{
-            width: '100%',
-            height: index % 3 === 0 ? hp(25) : hp(35),
-            borderRadius: 35,
-          }}
-          className="bg-black/5"
-        /> */}
-
         <CachedImage
-         uri= {item.strMealThumb}
+          uri={item.strMealThumb}
           resizeMode="cover"
           style={{
             width: '100%',
             height: index % 3 === 0 ? hp(25) : hp(35),
             borderRadius: 35,
+            backgroundColor: '#f3f4f6',
           }}
           className="bg-black/5"
         />
