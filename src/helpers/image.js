@@ -1,51 +1,41 @@
 // helpers/image.js
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image } from 'react-native';
-import Animated from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const CachedImage = (props) => {
-  const [cachedSource, setCachedSource] = useState(null);
-  const { uri, style } = props;
+export const CachedImage = ({ uri, style }) => {
+  const [source, setSource] = useState(null);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const getCachedImage = async () => {
+    const loadImage = async () => {
       try {
-        const cachedImageData = await AsyncStorage.getItem(uri);
-        if (cachedImageData) {
-          isMounted && setCachedSource({ uri: cachedImageData });
+        const cached = await AsyncStorage.getItem(uri);
+        if (cached) {
+          setSource({ uri: cached });
         } else {
-          const response = await fetch(uri);
-          const imageBlob = await response.blob();
-          const base64Data = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(imageBlob);
-            reader.onload = () => resolve(reader.result);
-          });
-          await AsyncStorage.setItem(uri, base64Data);
-          isMounted && setCachedSource({ uri: base64Data });
+          const res = await fetch(uri);
+          const blob = await res.blob();
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result;
+            AsyncStorage.setItem(uri, base64);
+            setSource({ uri: base64 });
+          };
+          reader.readAsDataURL(blob);
         }
-      } catch (error) {
-        console.error('Error caching image:', error);
-        isMounted && setCachedSource({ uri }); // fallback to original URI
+      } catch {
+        setSource({ uri }); // fallback
       }
     };
 
-    getCachedImage();
-
-    return () => {
-      isMounted = false;
-    };
+    loadImage();
   }, [uri]);
 
-  return cachedSource ? (
-    <Animated.Image source={cachedSource} style={style} {...props} />
-  ) : (
+  return (
     <Image
-      source={require('../assets/placeholder.png')} // Add a local placeholder
+      source={source ? source : require('../assets/placeholder.png')}
       style={style}
+      resizeMode="cover"
     />
   );
 };
