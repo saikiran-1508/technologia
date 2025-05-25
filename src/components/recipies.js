@@ -1,52 +1,72 @@
 // components/Recipes.js
-import React from 'react';
 import { View, Text, Pressable } from 'react-native';
+import React from 'react';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 import MasonryList from '@react-native-seoul/masonry-list';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { CachedImage } from '../helpers/image';
 
 export default function Recipes({ meals }) {
   return (
-    <View style={{ paddingHorizontal: 16 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 12 }}>
+    <View style={{ marginHorizontal: wp(4), gap: hp(2) }}>
+      <Text style={{ fontSize: hp(3) }} className="font-semibold text-neutral-600">
         Recipes
       </Text>
 
       {meals.length === 0 ? (
-        <Text>No recipes to show.</Text>
+        <Text>No recipes to display.</Text>
       ) : (
         <MasonryList
           data={meals}
           keyExtractor={(item) => item.idMeal}
           numColumns={2}
-          renderItem={({ item, index }) => (
-            <RecipeCard item={item} index={index} />
-          )}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => <RecipeCard item={item} index={index} />}
         />
       )}
     </View>
   );
 }
 
-function RecipeCard({ item, index }) {
-  const shortName =
-    item.strMeal.length > 20
-      ? item.strMeal.slice(0, 20) + '...'
-      : item.strMeal;
+const RecipeCard = ({ item, index }) => {
+  const isEven = index % 2 === 0;
+
+  if (!item?.strMeal || !item?.strMealThumb) return null;
 
   return (
-    <Pressable style={{ padding: 6 }}>
-      <CachedImage
-        uri={item.strMealThumb}
+    <Animated.View
+      entering={FadeInDown.delay(index * 100).duration(600).springify().damping(12)}
+    >
+      <Pressable
         style={{
           width: '100%',
-          height: index % 3 === 0 ? 140 : 200,
-          borderRadius: 20,
-          backgroundColor: '#eee',
+          paddingLeft: isEven ? 0 : 8,
+          paddingRight: isEven ? 8 : 0,
         }}
-      />
-      <Text style={{ marginTop: 6, fontWeight: '600', color: '#444' }}>
-        {shortName}
-      </Text>
-    </Pressable>
+        className="flex justify-center mb-4 space-y-1"
+      >
+        <CachedImage
+          uri={item.strMealThumb}
+          resizeMode="cover"
+          style={{
+            width: '100%',
+            height: index % 3 === 0 ? hp(25) : hp(35),
+            borderRadius: 35,
+            backgroundColor: '#f3f4f6',
+          }}
+          className="bg-black/5"
+        />
+
+        <Text
+          style={{ fontSize: hp(1.5) }}
+          className="font-semibold ml-2 text-neutral-600"
+        >
+          {item.strMeal.length > 20 ? item.strMeal.slice(0, 20) + '...' : item.strMeal}
+        </Text>
+      </Pressable>
+    </Animated.View>
   );
-}
+};
